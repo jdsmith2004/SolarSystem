@@ -74,12 +74,26 @@ class Ship(Conv_Units):
 		# if self.fuel <= 0:
         #     print("Insufficient fuel to perform action")
 
-        command = input('Would you like to move in or out of the solar system?: ')
-        move_amount = int(input(f"How far would you like to move: "))
-        if command == 'in':
-            self.ship_initial -= move_amount
+        while True:
+            command = input('Would you like to move in or out of the solar system?: ')
+
+            if command.lower() == 'in' or command.lower() == 'out':
+                break
+            else:
+                print('Invalid input. Please try again.')
+        
+        while True:
+            move_amount = input("How far would you like to move: ")
+
+            if not move_amount.isdigit():
+                print('Invalid input. Please try again.')
+            else:
+                break
+		
+	if command == 'in':
+            self.ship_initial -= int(move_amount)
         elif command == "out":
-            self.ship_initial += move_amount
+            self.ship_initial += int(move_amount)
 
     def current_position(self):
         print(f"Distance from Sun: {self.ship_initial}km ")

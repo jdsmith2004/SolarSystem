@@ -1,7 +1,11 @@
 import tkinter as tk
-from tkinter import simpledialog
+from tkinter import Scale, simpledialog
 import math
 import arcade
+from abc import ABC, abstractmethod
+import os
+
+relpath = lambda p: os.path.normpath(os.path.join(os.path.dirname(__file__), p))
 
 # Global constants to use throughout the game
 # Screen parameters
@@ -31,6 +35,9 @@ SATURN_RADIUS = 60268
 URANUS_RADIUS = 25559
 NEPTUNE_RADIUS = 24764
 
+SCALE = 0.003
+SHIP_THRUST = 3
+
 class Point:
     """
     This class is a coordinates of a central point of objects
@@ -53,10 +60,67 @@ class Velocity:
         Basic stat initialization.
         By default, the coordinates do not change, so the coefficients are specified as 0.
         """
-        self.dx = 0
+        self.dx = 1
         self.dy = 0
 
-class Ship:
+class FlyingObjects(ABC):
+    def __init__(self, obj, scale):
+        """ Abstract class with attributes for flying objects
+            Here we use an abstractmethod to say that
+            every child object need the method or set of methods
+            that we created here
+        """
+        self.center = Point()
+        self.velocity = Velocity()
+        self.alive = True
+        self.path = relpath(obj)
+        self.texture = arcade.load_texture(self.path)
+        self.width = self.texture.width*SCALE*scale
+        self.height = self.texture.height*SCALE*scale
+        self.angle = 0
+        self.radius = 0
+        # self.direction = 0
+        # self.speed = 0
+
+    def advance(self):
+        """ a base method for movement"""
+        # self.wrap()
+        self.bounds()
+        self.center.x += self.velocity.dx
+        self.center.y += self.velocity.dy
+
+# THIS IS A TEST METHOD, NOT sure how would work for the rest of objects
+    def bounds(self):
+        """Method to limit the movement of the ship"""
+        # This part needs some adjustments
+        if  self.center.x > SCREEN_WIDTH:
+            self.center.x -= SCREEN_WIDTH           
+        elif self.center.y > SCREEN_HEIGHT:
+            self.center.y -= SCREEN_HEIGHT
+        elif self.center.x < 0:
+            self.center.x += SCREEN_WIDTH
+        elif self.center.y < 0:
+            self.center.y += SCREEN_HEIGHT
+
+    # def wrap(self):
+    #     """ a base method for deleting flying objects when they leave the screen"""
+    #     if  self.center.x > SCREEN_WIDTH:
+    #         self.center.x -= SCREEN_WIDTH           
+    #     elif self.center.y > SCREEN_HEIGHT:
+    #         self.center.y -= SCREEN_HEIGHT
+    #     elif self.center.x < 0:
+    #         self.center.x += SCREEN_WIDTH
+    #     elif self.center.y < 0:
+    #         self.center.y += SCREEN_HEIGHT
+
+    """This abstract method will help to create every
+     texture or image needed in the project"""
+    @abstractmethod
+    def draw(self):
+        arcade.draw_texture_rectangle(self.center.x,self.center.y, self.width, self.height, self.texture, self.angle, 255)
+
+
+class Ship(FlyingObjects):
     """
     This class describes all the characteristics and capabilities of the ship.
     """
@@ -64,32 +128,36 @@ class Ship:
         """
         Basic stat initialization
         """
-        self.img = "" # -> the path to the image
+        super().__init__("images/ship_1.png",25)
+        # self.img = "" # -> the path to the image
         self.ship_dist = EARTH_DIST # -> distance between Sun and ship
         self.center = Point() # -> coordinates of the center
         self.center.x = 350 # -> x-coordinate changed
-        self.center.y = 250 # -> y-coordinate changed
+        self.center.y = 350 # -> y-coordinate changed
         self.velocity = Velocity() # -> values for changing coordinates
+        self.velocity.dx = SHIP_THRUST/2
     
-    def advance(self):
-        """
-        Change of position. By this method an object will move through the update() method in the Game class. Next it will be redraw.
-        By default, the object does not move.
-        """
-        self.center.x += self.velocity.dx # -> change the x-center position
-        self.center.y += self.velocity.dy # -> change the y-center position
+    def move_left(self):
+        if (self.velocity.dx >0):
+            self.velocity.dx *=-1
+        super().advance()
+        # self.angle += self.velocity.dx
+        # self.center.x -= self.velocity.dx
+    
+    def move_right(self):
+        if (self.velocity.dx<0):
+            self.velocity.dx *=-1 
+        super().advance()
+        # self.angle -= self.velocity.dx
+        # self.center.x += self.velocity.dx
 
-    def draw(self):
-        """
-        Draw an object.
-        It should be an image.
-        For test it will be a rectangle.
-        """
-        arcade.draw_rectangle_filled(self.center.x, self.center.y
-                                    ,60, 20
-                                    ,arcade.color.DARK_RED, 0)
+    def draw(self): 
+        """ Call the abstract method"""
+        # arcade.draw_texture_rectangle(self.center.x,self.center.y, self.width, self.height, self.texture, self.angle, 255)
+        super().draw()
 
-class Planet:
+# This could be a planet base class
+class Planet(FlyingObjects):
     """
     The class describes the main characteristics of the planet and draws it.
     """
@@ -104,11 +172,13 @@ class Planet:
         """
         self.name = name # -> planet name (can be used for img name)
         self.p_dist = p_dist # -> planet distance from the Sun
-        self.img = "" # -> the path to the image
+        self.radius = radius # -> radius of the planet to help with scaling
+        self.img = f"images/{self.name}.png" # -> the path to the image
+        super().__init__(self.img,self.radius)
         self.center = Point() # -> coordinates of the center
         self.center.x = distX # -> x-coordinate changed according to the planet distance
         self.center.y = 200 # -> y-coordinate changed to the default
-        self.radius = radius # -> radius of the planet
+
 
     def draw(self):
         """
@@ -116,8 +186,9 @@ class Planet:
         It should be images.
         For test it will be circles.
         """
-        arcade.draw_circle_filled(self.center.x, self.center.y
-                                 ,self.radius, arcade.color.CARROT_ORANGE)
+        super().draw()
+        # arcade.draw_circle_filled(self.center.x, self.center.y
+        #                          ,self.radius, arcade.color.CARROT_ORANGE)
 
 class Info():
     """
@@ -146,7 +217,7 @@ class Info():
         # Backgroud for info part
         arcade.draw_rectangle_filled(100, SCREEN_HEIGHT-110
                                     ,200, 220
-                                    ,arcade.color.BEIGE, 0)
+                                    ,arcade.color.BEIGE, 0,)
         # Text
         for i in range(len(self.dist_text['line'])):
             arcade.draw_text(self.dist_text['line'][i], 
@@ -172,19 +243,26 @@ class Game(arcade.Window):
 
         # Create each object
         self.ship = Ship() # -> ship created
+        # Remember: Planet(name, p_dist, distX, radius)
+        # p_dist - planet distance from the Sun. Will be used fof info part
+        # distX - position on the screen. Can be related to the actual distance from the Sun.
+        # radius - planet radius. Can be related to the real numbers.
         self.planets = [ # -> planets created
-            Planet("Sun", 0, 0, 100),
-            Planet("Mercury", MERCURY_DIST, 150, 8),
-            Planet("Venus", VENUS_DIST, 250, 15),
-            Planet("Earth", EARTH_DIST, 350, 20),
-            Planet("Mars", MARS_DIST, 450, 10),
-            Planet("Jupiter", JUPITER_DIST, 550, 40),
-            Planet("Saturn", SATURN_DIST, 650, 35),
-            Planet("Uranus", URANUS_DIST, 750, 30),
-            Planet("Neptune", NEPTUNE_DIST, 850, 25),
-            Planet("Pluto", PLUTO_DIST, 950, 8)
+            Planet("Sun", 0, 25, 100),
+            Planet("Mercury", MERCURY_DIST, 150, 15),
+            Planet("Venus", VENUS_DIST, 200, 12),
+            Planet("Earth", EARTH_DIST, 300, 20),
+            Planet("Mars", MARS_DIST, 400, 14),
+            Planet("Jupiter", JUPITER_DIST, 540, 40),
+            Planet("Saturn", SATURN_DIST, 710, 35),
+            Planet("Uranus", URANUS_DIST, 850, 25),
+            Planet("Neptune", NEPTUNE_DIST, 950, 20),
+            # Planet("Pluto", PLUTO_DIST, 950, 8)
         ]
         self.info = Info(self.ship.ship_dist, self.planets) # -> info part created
+
+        # Variable for movement of the ship
+        self.held_keys = set()
 
     def on_draw(self):
         """
@@ -200,6 +278,29 @@ class Game(arcade.Window):
             planet.draw() # -> each planet is drawn
 
         self.info.draw() # -> draw the list with distances
+
+    def update (self, delta):
+        """Logic for movement and other future features"""
+        self.check_keys()
+
+        self.ship.advance()
+
+    def check_keys(self):
+        """This function checks for keys that are being held down."""
+        if arcade.key.LEFT in self.held_keys:
+            self.ship.move_left()
+
+        if arcade.key.RIGHT in self.held_keys:
+            self.ship.move_right()
+    def on_key_press(self, key: int, modifiers: int):
+        self.held_keys.add(key)
+    
+    def on_key_release(self, key: int, modifiers: int):
+        """
+        Removes the current key from the set of held keys.
+        """
+        if key in self.held_keys:
+            self.held_keys.remove(key)
 
 
 # Creates the game and starts it going

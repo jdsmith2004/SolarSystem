@@ -34,13 +34,11 @@ URANUS_RADIUS = 25559
 NEPTUNE_RADIUS = 24764
 
 SCALE = 0.003
-SHIP_THRUST = 4
 SPRITE_SCALING = 0.5
 SCREEN_TITLE = "Solar System"
 
-
 # Speed limit
-MAX_SPEED = 3.0
+MAX_SPEED = 4.0
 
 # How fast we accelerate
 ACCELERATION_RATE = 0.1
@@ -341,8 +339,8 @@ class Game(arcade.Window):
             planet.draw() # -> each planet is drawn
         
         # Display speed
-        arcade.draw_text(f"X Speed: {self.player_sprite.change_x:6.3f}", 10, 50, arcade.color.BLACK)
-        arcade.draw_text(f"Y Speed: {self.player_sprite.change_y:6.3f}", 10, 70, arcade.color.BLACK)
+        arcade.draw_text(f"X Speed: {self.player_sprite.change_x:6.3f}", 10, 50, arcade.color.WHITE)
+        arcade.draw_text(f"Y Speed: {self.player_sprite.change_y:6.3f}", 10, 70, arcade.color.WHITE)
 
         self.info.draw() # -> draw the list with distances
 

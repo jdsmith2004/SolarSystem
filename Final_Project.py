@@ -85,7 +85,7 @@ class Ship(Conv_Units):
                 print('Invalid input. Please try again.')
 
         while True:
-            move_amount = input("How far would you like to move: ")
+            move_amount = input("How many Kilometers would you like to move: ")
 
             if not move_amount.isdigit():
                 print('Invalid input. Please try again.')

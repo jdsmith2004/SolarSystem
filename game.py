@@ -5,8 +5,8 @@ import arcade
 
 # Global constants to use throughout the game
 # Screen parameters
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1200 #1000
+SCREEN_HEIGHT = 700 #600
 
 SOLAR_SYSTEM = 178619362920.544
 # Distance form Sun (km)
@@ -21,7 +21,7 @@ NEPTUNE_DIST = 4495100000
 PLUTO_DIST = 5884500000
 
 # Radius of planets (km)
-SUN_RADIUS = 432690
+SUN_RADIUS = 696000
 MERCURY_RADIUS = 2439.5
 VENUS_RADIUS = 6054
 EARTH_RADIUS = 6378
@@ -30,6 +30,28 @@ JUPITER_RADIUS = 71492
 SATURN_RADIUS = 60268
 URANUS_RADIUS = 25559
 NEPTUNE_RADIUS = 24764
+
+# Planet image url
+SUN_IMAGE = r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\Sun.jpg"
+
+#Sun to Mercury size(Sun radius) to distance(kil) ratio
+SUN_MERCURY_RATIO = SUN_RADIUS / 67368000
+
+# Distance Ratios to Earth
+
+# Size Ratios to Sun(Kilometers)
+SUN_SIZE = 600
+MERCURY_SIZE = 1 / 277 * SUN_SIZE
+VENUS_SIZE = 1 / 113 * SUN_SIZE
+EARTH_SIZE = 1 / 108 * SUN_SIZE
+MARS_SIZE = 1 / 208 * SUN_SIZE
+JUPITER_SIZE = 1 / 9.7 * SUN_SIZE
+SATURN_SIZE = 1 / 11.4 * SUN_SIZE
+URANUS_SIZE = 1 / 26.8 * SUN_SIZE
+NEPTUNE_SIZE = 1 / 27.7 * SUN_SIZE
+PLUTO_SIZE = 1 / 585 * SUN_SIZE
+
+MERCURY_D = SUN_SIZE / SUN_MERCURY_RATIO
 
 class Point:
     """
@@ -119,6 +141,7 @@ class Planet:
         """
         arcade.draw_circle_filled(self.center.x, self.center.y
                                  ,self.radius, arcade.color.CARROT_ORANGE)
+#         arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\Sun.jpg")
 
 class Info():
     """
@@ -170,20 +193,21 @@ class Game(arcade.Window):
         """
         super().__init__(width, height)
         arcade.set_background_color(arcade.color.SMOKY_BLACK)
+        self.background = arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\SimpleSpace.jpg")
 
         # Create each object
         self.ship = Ship() # -> ship created
         self.planets = [ # -> planets created
-            Planet("Sun", 0, 0, 100),
-            Planet("Mercury", MERCURY_DIST, 150, 8),
-            Planet("Venus", VENUS_DIST, 250, 15),
-            Planet("Earth", EARTH_DIST, 350, 20),
-            Planet("Mars", MARS_DIST, 450, 10),
-            Planet("Jupiter", JUPITER_DIST, 550, 40),
-            Planet("Saturn", SATURN_DIST, 650, 35),
-            Planet("Uranus", URANUS_DIST, 750, 30),
-            Planet("Neptune", NEPTUNE_DIST, 850, 25),
-            Planet("Pluto", PLUTO_DIST, 950, 8)
+            Planet("Sun", 0, -500, SUN_SIZE),
+            Planet("Mercury", MERCURY_DIST, 150, MERCURY_SIZE),
+            Planet("Venus", VENUS_DIST, 250, VENUS_SIZE),
+            Planet("Earth", EARTH_DIST, 350, EARTH_SIZE),
+            Planet("Mars", MARS_DIST, 450, MARS_SIZE),
+            Planet("Jupiter", JUPITER_DIST, 620, JUPITER_SIZE),
+            Planet("Saturn", SATURN_DIST, 800, SATURN_SIZE),
+            Planet("Uranus", URANUS_DIST, 925, URANUS_SIZE),
+            Planet("Neptune", NEPTUNE_DIST, 1050, NEPTUNE_SIZE),
+            Planet("Pluto", PLUTO_DIST, 1150, PLUTO_SIZE)
         ]
         self.info = Info(self.ship.ship_dist, self.planets) # -> info part created
 
@@ -193,7 +217,11 @@ class Game(arcade.Window):
         Handles the responsibility of drawing all elements.
         """
         # Clear the screen to begin drawing
+        #https://www.pixelstalk.net/wp-content/uploads/2016/08/Distant-Solar-System-Background.jpg
         arcade.start_render()
+        arcade.draw_texture_rectangle(590, 350,
+                                            SCREEN_WIDTH, SCREEN_HEIGHT,
+                                            self.background)
 
         # Draw each object
         self.ship.draw() # -> the ship is drawn

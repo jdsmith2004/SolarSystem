@@ -88,18 +88,14 @@ class Ship:
         self.center.y = 250 # -> y-coordinate changed
         self.velocity = Velocity() # -> values for changing coordinates
         self.angle = 0
-    #     self.velocity.dx = SHIP_THRUST/2
     
     def advance(self):
         """ a base method for movement"""
-        # self.wrap()
-        # self.bounds()
+        # self.bounds() this would help to limit the movement of the ship
         self.center.x += self.velocity.dx
         self.center.y += self.velocity.dy
 
     def draw(self): 
-        """ Call the abstract method"""
-        # arcade.draw_texture_rectangle(self.center.x,self.center.y, self.width, self.height, self.texture, self.angle, 255)
         arcade.draw_texture_rectangle(self.center.x,self.center.y, 
                                     self.width, self.height, 
                                     self.texture, self.angle, 255)
@@ -107,12 +103,8 @@ class Ship:
     def rotate(self, key):
         if key == 'l':
             self.angle += SHIP_TURN_AMOUNT
-            # self.velocity.dx = (-1)*math.sin(math.radians(0-self.angle))# * SHIP_SPEED
-            # self.velocity.dy = math.cos(math.radians(self.angle))# * SHIP_SPEED
         if key == 'r':
             self.angle -= SHIP_TURN_AMOUNT
-            # self.velocity.dx = (-1)*math.sin(math.radians(self.angle))# * SHIP_SPEED
-            # self.velocity.dy = math.cos(math.radians(0-self.angle))# * SHIP_SPEED
     def move(self, key):
         if key == 'u':
             self.velocity.dx = (-SHIP_SPEED)*math.sin(math.radians(self.angle))# * SHIP_SPEED
@@ -120,23 +112,6 @@ class Ship:
         if key == 'd':
             self.velocity.dx = 0
             self.velocity.dy = 0
-
-    # def move(self, key):
-    #     if key == 'u':
-    #         if abs(self.velocity.dx) <= SHIP_SPEED:
-    #             self.velocity.dx += (-1)*math.sin(math.radians(self.angle))# * SHIP_SPEED
-    #         if abs(self.velocity.dy) <= SHIP_SPEED:
-    #             self.velocity.dy += math.cos(math.radians(self.angle))# * SHIP_SPEED
-    #     if key == 'd':
-    #         if abs(self.velocity.dx) > 0:
-    #             self.velocity.dx -= SHIP_SPEED*0.2
-    #         else:
-    #             self.velocity.dx = 0
-            
-    #         if abs(self.velocity.dy) > 0:
-    #             self.velocity.dy -= SHIP_SPEED*0.2
-    #         else:
-    #             self.velocity.dy = 0
 
 
 # This could be a planet base class
@@ -232,20 +207,14 @@ class Game(arcade.Window):
             Planet("Saturn", SATURN_DIST, 710, 35),
             Planet("Uranus", URANUS_DIST, 850, 25),
             Planet("Neptune", NEPTUNE_DIST, 950, 20),
-            # Planet("Pluto", PLUTO_DIST, 950, 8)
+            # Planet("Pluto", PLUTO_DIST, 950, 8) NOT using pluto because there is no image for it 
         ]
 
         # Used in scrolling
-        self.view_bottom = 0
-        self.view_left = 0
-
-        self.view_right = 0
-        self.view_top = 0
-        
         # Set the viewport boundaries
         # These numbers set where we have 'scrolled' to.
-        # self.view_left = 0
-        # self.view_bottom = 0
+        self.view_bottom = 0
+        self.view_left = 0
 
         self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.camera_gui = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -287,8 +256,8 @@ class Game(arcade.Window):
         arcade.draw_text(text, 10, 10, arcade.color.BLACK_BEAN, 20)
 
         # Draw the box that we work to make sure the user stays inside of.
-        # This is just for illustration purposes. You'd want to remove this
-        # in your game.
+        # This is just for illustration purposes. We'd want to remove this
+        # in our game.
         left_boundary = VIEWPORT_MARGIN
         right_boundary = self.width - VIEWPORT_MARGIN
         top_boundary = self.height - VIEWPORT_MARGIN
@@ -315,7 +284,8 @@ class Game(arcade.Window):
             self.ship.move('d')
 
         if arcade.key.SPACE in self.held_keys:
-            # this key would help to enter a planet
+            # this key would help to display a planet info
+            # or something like that
             pass
 
     def on_key_press(self, key: int, modifiers: int):

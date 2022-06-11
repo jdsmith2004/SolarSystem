@@ -1,12 +1,18 @@
-import tkinter as tk
-from tkinter import simpledialog
 import math
 import arcade
+import os
+
+relpath = lambda p: os.path.normpath(os.path.join(os.path.dirname(__file__), p))
 
 # Global constants to use throughout the game
 # Screen parameters
-SCREEN_WIDTH = 1200 #1000
-SCREEN_HEIGHT = 700 #600
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 650
+# How many pixels to keep as a minimum margin between the character
+# and the edge of the screen.
+VIEWPORT_MARGIN = 200
+# How fast the camera pans to the player. 1.0 is instant.
+CAMERA_SPEED = 0.1
 
 SOLAR_SYSTEM = 178619362920.544
 # Distance form Sun (km)
@@ -21,7 +27,7 @@ NEPTUNE_DIST = 4495100000
 PLUTO_DIST = 5884500000
 
 # Radius of planets (km)
-SUN_RADIUS = 696000
+SUN_RADIUS = 432690
 MERCURY_RADIUS = 2439.5
 VENUS_RADIUS = 6054
 EARTH_RADIUS = 6378
@@ -31,8 +37,10 @@ SATURN_RADIUS = 60268
 URANUS_RADIUS = 25559
 NEPTUNE_RADIUS = 24764
 
-# Planet image url
-SUN_IMAGE = r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\Sun.jpg"
+SOLAR_SYSTEM = 178619362920.544
+SCALE_PLANET = 0.003
+SCALE_SYSTEM = 0.00000001
+
 
 #Sun to Mercury size(Sun radius) to distance(kil) ratio
 SUN_MERCURY_RATIO = SUN_RADIUS / 67368000
@@ -52,6 +60,13 @@ NEPTUNE_SIZE = 1 / 27.7 * SUN_SIZE
 PLUTO_SIZE = 1 / 585 * SUN_SIZE
 
 MERCURY_D = SUN_SIZE / SUN_MERCURY_RATIO
+
+
+
+
+SCREEN_TITLE = "Solar System 1.2"
+SHIP_TURN_AMOUNT = 3
+SHIP_SPEED = 3
 
 class Point:
     """
@@ -85,32 +100,44 @@ class Ship:
     def __init__(self):
         """
         Basic stat initialization
-        """
-        self.img = "" # -> the path to the image
+        """  
+        self.img = relpath("images/ship_1.png")
+        self.texture = arcade.load_texture(self.img) # -> the path to the image
+        self.width = self.texture.width*0.10
+        self.height = self.texture.height*0.10
         self.ship_dist = EARTH_DIST # -> distance between Sun and ship
         self.center = Point() # -> coordinates of the center
-        self.center.x = 350 # -> x-coordinate changed
+        self.center.x = 250 # -> x-coordinate changed
         self.center.y = 250 # -> y-coordinate changed
         self.velocity = Velocity() # -> values for changing coordinates
+        self.angle = 0
     
     def advance(self):
-        """
-        Change of position. By this method an object will move through the update() method in the Game class. Next it will be redraw.
-        By default, the object does not move.
-        """
-        self.center.x += self.velocity.dx # -> change the x-center position
-        self.center.y += self.velocity.dy # -> change the y-center position
+        """ a base method for movement"""
+        # self.bounds() this would help to limit the movement of the ship
+        self.center.x += self.velocity.dx
+        self.center.y += self.velocity.dy
 
-    def draw(self):
-        """
-        Draw an object.
-        It should be an image.
-        For test it will be a rectangle.
-        """
-        arcade.draw_rectangle_filled(self.center.x, self.center.y
-                                    ,60, 20
-                                    ,arcade.color.DARK_RED, 0)
+    def draw(self): 
+        arcade.draw_texture_rectangle(self.center.x,self.center.y, 
+                                    self.width, self.height, 
+                                    self.texture, self.angle, 255)
+    
+    def rotate(self, key):
+        if key == 'l':
+            self.angle += SHIP_TURN_AMOUNT
+        if key == 'r':
+            self.angle -= SHIP_TURN_AMOUNT
+    def move(self, key):
+        if key == 'u':
+            self.velocity.dx = (-SHIP_SPEED)*math.sin(math.radians(self.angle))# * SHIP_SPEED
+            self.velocity.dy = (SHIP_SPEED)*math.cos(math.radians(self.angle))# * SHIP_SPEED
+        if key == 'd':
+            self.velocity.dx = 0
+            self.velocity.dy = 0
 
+
+# This could be a planet base class
 class Planet:
     """
     The class describes the main characteristics of the planet and draws it.
@@ -118,7 +145,6 @@ class Planet:
     def __init__(self, name, p_dist, distX, radius):
         """
         Basic stat initialization.
-
         It uses:
         name - can be used for img path and for info part on the screen
         p_dist - planet distance from the Sun. Will be used fof info part
@@ -127,21 +153,17 @@ class Planet:
         """
         self.name = name # -> planet name (can be used for img name)
         self.p_dist = p_dist # -> planet distance from the Sun
-        self.img = "" # -> the path to the image
+        self.radius = radius # -> radius of the planet to help with scaling
+        self.img = f"images/{self.name}.png" # -> the path to the image
+        self.texture = arcade.load_texture(self.img)
+        self.width = self.texture.width*SCALE_PLANET*radius
+        self.height = self.texture.height*SCALE_PLANET*radius
         self.center = Point() # -> coordinates of the center
         self.center.x = distX # -> x-coordinate changed according to the planet distance
         self.center.y = 200 # -> y-coordinate changed to the default
-        self.radius = radius # -> radius of the planet
 
     def draw(self):
-        """
-        Draw an object.
-        It should be images.
-        For test it will be circles.
-        """
-        arcade.draw_circle_filled(self.center.x, self.center.y
-                                 ,self.radius, arcade.color.CARROT_ORANGE)
-#         arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\Sun.jpg")
+        arcade.draw_texture_rectangle(self.center.x,self.center.y, self.width, self.height, self.texture, 0, 255)
 
 class Info():
     """
@@ -170,33 +192,34 @@ class Info():
         # Backgroud for info part
         arcade.draw_rectangle_filled(100, SCREEN_HEIGHT-110
                                     ,200, 220
-                                    ,arcade.color.BEIGE, 0)
+                                    ,arcade.color.BEIGE, 0,)
         # Text
         for i in range(len(self.dist_text['line'])):
             arcade.draw_text(self.dist_text['line'][i], 
                             start_x=self.start_x, start_y=self.dist_text['start_y'][i], 
                             font_size=12, color=arcade.color.NAVY_BLUE)
             
-
-
 class Game(arcade.Window):
     """
     This class handles all the game callbacks and interaction
     This class will then call the appropriate functions of
     each of the above classes.
     """
-    def __init__(self, width, height):
+    def __init__(self, width, height, title):
         """
         Sets up the initial conditions of the game
         :param width: Screen width
         :param height: Screen height
         """
-        super().__init__(width, height)
+        super().__init__(width, height, title)
         arcade.set_background_color(arcade.color.SMOKY_BLACK)
-        self.background = arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\SimpleSpace.jpg")
-
+        
+        #self.background = arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\SimpleSpace.jpg")
+        
+        self.held_keys = set()
         # Create each object
-        self.ship = Ship() # -> ship created
+        self.ship = Ship()
+        
         self.planets = [ # -> planets created
             Planet("Sun", 0, -500, SUN_SIZE),
             Planet("Mercury", MERCURY_DIST, 150, MERCURY_SIZE),
@@ -207,9 +230,19 @@ class Game(arcade.Window):
             Planet("Saturn", SATURN_DIST, 800, SATURN_SIZE),
             Planet("Uranus", URANUS_DIST, 925, URANUS_SIZE),
             Planet("Neptune", NEPTUNE_DIST, 1050, NEPTUNE_SIZE),
-            Planet("Pluto", PLUTO_DIST, 1150, PLUTO_SIZE)
+            #Planet("Pluto", PLUTO_DIST, 1150, PLUTO_SIZE)
         ]
-        self.info = Info(self.ship.ship_dist, self.planets) # -> info part created
+
+        # Used in scrolling
+        # Set the viewport boundaries
+        # These numbers set where we have 'scrolled' to.
+        self.view_bottom = 0
+        self.view_left = 0
+
+        self.camera_sprites = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.camera_gui = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+        self.info = Info(EARTH_DIST, self.planets) # -> info part created
 
     def on_draw(self):
         """
@@ -217,20 +250,132 @@ class Game(arcade.Window):
         Handles the responsibility of drawing all elements.
         """
         # Clear the screen to begin drawing
-        #https://www.pixelstalk.net/wp-content/uploads/2016/08/Distant-Solar-System-Background.jpg
         arcade.start_render()
-        arcade.draw_texture_rectangle(590, 350,
+        
+#         arcade.draw_texture_rectangle(590, 350,
                                             SCREEN_WIDTH, SCREEN_HEIGHT,
                                             self.background)
+        
+        # Select the camera we'll use to draw all our sprites
+        self.camera_sprites.use()
 
         # Draw each object
-        self.ship.draw() # -> the ship is drawn
         for planet in self.planets:
             planet.draw() # -> each planet is drawn
+        
+        # self.player_list.draw() # -> the ship is drawn
+        self.ship.draw()
+        # Display speed
+        # ----------------------------HERE we need relative values for position
+        arcade.draw_text(f"X position: {self.ship.center.x:6.3f}", 10, 20, arcade.color.WHITE)
+        arcade.draw_text(f"Y position: {self.ship.center.y:6.3f}", 10, 40, arcade.color.WHITE)
+        arcade.draw_text(f"X vel: {self.ship.velocity.dx:6.3f}", 10, 60, arcade.color.WHITE)
+        arcade.draw_text(f"Y vel: {self.ship.velocity.dy:6.3f}", 10, 80, arcade.color.WHITE)
 
         self.info.draw() # -> draw the list with distances
 
+        # Select the (unscrolled) camera for our GUI
+        self.camera_gui.use()
+        
+        # Draw the GUI
+        arcade.draw_rectangle_filled(self.width // 2, 20, self.width, 40, arcade.color.ALMOND)
+        text = f"Scroll value: ({self.camera_sprites.position[0]:5.1f}, {self.camera_sprites.position[1]:5.1f})"
+        arcade.draw_text(text, 10, 10, arcade.color.BLACK_BEAN, 20)
 
-# Creates the game and starts it going
-window = Game(SCREEN_WIDTH, SCREEN_HEIGHT)
+        # Draw the box that we work to make sure the user stays inside of.
+        # This is just for illustration purposes. We'd want to remove this
+        # in our game.
+        left_boundary = VIEWPORT_MARGIN
+        right_boundary = self.width - VIEWPORT_MARGIN
+        top_boundary = self.height - VIEWPORT_MARGIN
+        bottom_boundary = VIEWPORT_MARGIN
+        arcade.draw_lrtb_rectangle_outline(left_boundary, right_boundary, top_boundary, bottom_boundary,
+                                           arcade.color.RED, 2)
+    
+    def check_collision(self):
+        # this would help to check if we get in to a planet
+        pass
+
+    def check_keys(self):
+        """This function checks for keys that are being held down."""
+        if arcade.key.LEFT in self.held_keys:
+            self.ship.rotate('l')
+
+        if arcade.key.RIGHT in self.held_keys:
+            self.ship.rotate('r')
+
+        if arcade.key.UP in self.held_keys:
+            self.ship.move('u')
+
+        if arcade.key.DOWN in self.held_keys:
+            self.ship.move('d')
+
+        if arcade.key.SPACE in self.held_keys:
+            # this key would help to display a planet info
+            # or something like that
+            pass
+
+    def on_key_press(self, key: int, modifiers: int):
+        self.held_keys.add(key)
+      
+    def on_key_release(self, key: int, modifiers: int):
+        """
+        Removes the current key from the set of held keys.
+        """
+        if key in self.held_keys:
+            self.held_keys.remove(key)
+    
+    def on_update (self, delta):
+        """Logic for movement and other future features"""
+        self.check_keys()
+        self.ship.advance()
+        self.check_collision()
+        self.scroll_to_player()
+    
+    def scroll_to_player(self):
+        """
+        Scroll the window to the player.
+        This method will attempt to keep the player at least VIEWPORT_MARGIN
+        pixels away from the edge.
+
+        if CAMERA_SPEED is 1, the camera will immediately move to the desired position.
+        Anything between 0 and 1 will have the camera move to the location with a smoother
+        pan.
+        """
+
+        # --- Manage Scrolling ---
+
+        # Scroll left
+        left_boundary = self.view_left + VIEWPORT_MARGIN
+        if self.ship.center.x < left_boundary:
+            self.view_left -= left_boundary - self.ship.center.x
+
+        # Scroll right
+        right_boundary = self.view_left + self.width - VIEWPORT_MARGIN
+        if self.ship.center.x > right_boundary:
+            self.view_left += self.ship.center.x - right_boundary
+
+        # Scroll up
+        top_boundary = self.view_bottom + self.height - VIEWPORT_MARGIN
+        if self.ship.center.y > top_boundary:
+            self.view_bottom += self.ship.center.y - top_boundary
+
+        # Scroll down
+        bottom_boundary = self.view_bottom + VIEWPORT_MARGIN
+        if self.ship.center.y < bottom_boundary:
+            self.view_bottom -= bottom_boundary - self.ship.center.y
+
+        # Scroll to the proper location
+        position = self.view_left, self.view_bottom
+        self.camera_sprites.move_to(position, CAMERA_SPEED)
+    
+    def on_resize(self, width, height):
+        """
+        Resize window
+        Handle the user grabbing the edge and resizing the window.
+        """
+        self.camera_sprites.resize(int(width), int(height))
+        self.camera_gui.resize(int(width), int(height))
+
+window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE
 arcade.run()

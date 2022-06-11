@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import simpledialog
 import math
+import arcade
 
 # Measurements are in km
 # conversion km to miles (1/1.60934)
@@ -85,7 +86,7 @@ class Ship(Conv_Units):
                 print('Invalid input. Please try again.')
 
         while True:
-            move_amount = input("How far would you like to move: ")
+            move_amount = input("How many Kilometers would you like to move: ")
 
             if not move_amount.isdigit():
                 print('Invalid input. Please try again.')
@@ -111,7 +112,7 @@ class Ship(Conv_Units):
             elif self.ship_initial <= planet:
                 dist_from_planet = planet - self.ship_initial
             list.append(f"{key} : {dist_from_planet} km")
-        print(list)
+        # print(list)
         return list
 
 # class Planet_Dist(Ship):

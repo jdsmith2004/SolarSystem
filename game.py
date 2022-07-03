@@ -214,6 +214,8 @@ class Game(arcade.Window):
         super().__init__(width, height, title)
         # arcade.set_background_color(arcade.color.SMOKY_BLACK)
         
+        #self.background = arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\SimpleSpace.jpg")
+        
         self.held_keys = set()
         # Create each object
         self.ship = Ship()
@@ -253,6 +255,9 @@ class Game(arcade.Window):
         # self.background = relpath(f"/images/background.png") # -> the path to the image
         # arcade.draw_lrwh_rectangle_textured(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, self.background)
         # arcade.draw_texture_rectangle(590, 350,SCREEN_WIDTH, SCREEN_HEIGHT,self.background)
+        # arcade.draw_texture_rectangle(590, 350,
+        #                                     SCREEN_WIDTH, SCREEN_HEIGHT,
+        #                                     self.background)
         
         # Select the camera we'll use to draw all our sprites
         self.camera_sprites.use()
@@ -375,5 +380,9 @@ class Game(arcade.Window):
         self.camera_sprites.resize(int(width), int(height))
         self.camera_gui.resize(int(width), int(height))
 
+<<<<<<< HEAD
 window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+=======
+window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE
+>>>>>>> 0767beecf9d6c060b8a9a685babc5413a7bf2580
 arcade.run()

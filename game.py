@@ -379,10 +379,5 @@ class Game(arcade.Window):
         """
         self.camera_sprites.resize(int(width), int(height))
         self.camera_gui.resize(int(width), int(height))
-
-<<<<<<< HEAD
 window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-=======
-window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE
->>>>>>> 0767beecf9d6c060b8a9a685babc5413a7bf2580
 arcade.run()

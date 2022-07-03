@@ -11,10 +11,10 @@ SCREEN_HEIGHT = 650
 # How many pixels to keep as a minimum margin between the character
 # and the edge of the screen.
 VIEWPORT_MARGIN = 200
-
 # How fast the camera pans to the player. 1.0 is instant.
 CAMERA_SPEED = 0.1
 
+SOLAR_SYSTEM = 178619362920.544
 # Distance form Sun (km)
 MERCURY_DIST = 57900000
 VENUS_DIST = 108200000
@@ -40,6 +40,29 @@ NEPTUNE_RADIUS = 24764
 SOLAR_SYSTEM = 178619362920.544
 SCALE_PLANET = 0.003
 SCALE_SYSTEM = 0.00000001
+
+
+#Sun to Mercury size(Sun radius) to distance(kil) ratio
+SUN_MERCURY_RATIO = SUN_RADIUS / 67368000
+
+# Distance Ratios to Earth
+
+# Size Ratios to Sun(Kilometers)
+SUN_SIZE = 600
+MERCURY_SIZE = 1 / 277 * SUN_SIZE
+VENUS_SIZE = 1 / 113 * SUN_SIZE
+EARTH_SIZE = 1 / 108 * SUN_SIZE
+MARS_SIZE = 1 / 208 * SUN_SIZE
+JUPITER_SIZE = 1 / 9.7 * SUN_SIZE
+SATURN_SIZE = 1 / 11.4 * SUN_SIZE
+URANUS_SIZE = 1 / 26.8 * SUN_SIZE
+NEPTUNE_SIZE = 1 / 27.7 * SUN_SIZE
+PLUTO_SIZE = 1 / 585 * SUN_SIZE
+
+MERCURY_D = SUN_SIZE / SUN_MERCURY_RATIO
+
+
+
 
 SCREEN_TITLE = "Solar System 1.2"
 SHIP_TURN_AMOUNT = 3
@@ -176,8 +199,6 @@ class Info():
                             start_x=self.start_x, start_y=self.dist_text['start_y'][i], 
                             font_size=12, color=arcade.color.NAVY_BLUE)
             
-
-
 class Game(arcade.Window):
     """
     This class handles all the game callbacks and interaction
@@ -191,23 +212,23 @@ class Game(arcade.Window):
         :param height: Screen height
         """
         super().__init__(width, height, title)
-        arcade.set_background_color(arcade.color.SMOKY_BLACK)
+        # arcade.set_background_color(arcade.color.SMOKY_BLACK)
         
         self.held_keys = set()
         # Create each object
         self.ship = Ship()
         
         self.planets = [ # -> planets created
-            Planet("Sun", 0, 25, 100),
-            Planet("Mercury", MERCURY_DIST, 150, 15),
-            Planet("Venus", VENUS_DIST, 200, 12),
-            Planet("Earth", EARTH_DIST, 300, 20),
-            Planet("Mars", MARS_DIST, 400, 14),
-            Planet("Jupiter", JUPITER_DIST, 540, 40),
-            Planet("Saturn", SATURN_DIST, 710, 35),
-            Planet("Uranus", URANUS_DIST, 850, 25),
-            Planet("Neptune", NEPTUNE_DIST, 950, 20),
-            # Planet("Pluto", PLUTO_DIST, 950, 8) NOT using pluto because there is no image for it 
+            Planet("Sun", 0, -500, SUN_SIZE),
+            Planet("Mercury", MERCURY_DIST, 150, MERCURY_SIZE),
+            Planet("Venus", VENUS_DIST, 250, VENUS_SIZE),
+            Planet("Earth", EARTH_DIST, 350, EARTH_SIZE),
+            Planet("Mars", MARS_DIST, 450, MARS_SIZE),
+            Planet("Jupiter", JUPITER_DIST, 620, JUPITER_SIZE),
+            Planet("Saturn", SATURN_DIST, 800, SATURN_SIZE),
+            Planet("Uranus", URANUS_DIST, 925, URANUS_SIZE),
+            Planet("Neptune", NEPTUNE_DIST, 1050, NEPTUNE_SIZE),
+            Planet("Pluto", PLUTO_DIST, 1150, PLUTO_SIZE)
         ]
 
         # Used in scrolling
@@ -228,7 +249,11 @@ class Game(arcade.Window):
         """
         # Clear the screen to begin drawing
         arcade.start_render()
-
+        
+        # self.background = relpath(f"/images/background.png") # -> the path to the image
+        # arcade.draw_lrwh_rectangle_textured(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, self.background)
+        # arcade.draw_texture_rectangle(590, 350,SCREEN_WIDTH, SCREEN_HEIGHT,self.background)
+        
         # Select the camera we'll use to draw all our sprites
         self.camera_sprites.use()
 
@@ -239,7 +264,7 @@ class Game(arcade.Window):
         # self.player_list.draw() # -> the ship is drawn
         self.ship.draw()
         # Display speed
-        # -------------------------------------------------------HERE we need relative values for position
+        # ----------------------------HERE we need relative values for position
         arcade.draw_text(f"X position: {self.ship.center.x:6.3f}", 10, 20, arcade.color.WHITE)
         arcade.draw_text(f"Y position: {self.ship.center.y:6.3f}", 10, 40, arcade.color.WHITE)
         arcade.draw_text(f"X vel: {self.ship.velocity.dx:6.3f}", 10, 60, arcade.color.WHITE)
@@ -258,12 +283,13 @@ class Game(arcade.Window):
         # Draw the box that we work to make sure the user stays inside of.
         # This is just for illustration purposes. We'd want to remove this
         # in our game.
-        left_boundary = VIEWPORT_MARGIN
-        right_boundary = self.width - VIEWPORT_MARGIN
-        top_boundary = self.height - VIEWPORT_MARGIN
-        bottom_boundary = VIEWPORT_MARGIN
-        arcade.draw_lrtb_rectangle_outline(left_boundary, right_boundary, top_boundary, bottom_boundary,
-                                           arcade.color.RED, 2)
+
+        # left_boundary = VIEWPORT_MARGIN
+        # right_boundary = self.width - VIEWPORT_MARGIN
+        # top_boundary = self.height - VIEWPORT_MARGIN
+        # bottom_boundary = VIEWPORT_MARGIN
+        # arcade.draw_lrtb_rectangle_outline(left_boundary, right_boundary, top_boundary, bottom_boundary,
+        #                                    arcade.color.RED, 2)
     
     def check_collision(self):
         # this would help to check if we get in to a planet
@@ -310,7 +336,6 @@ class Game(arcade.Window):
         Scroll the window to the player.
         This method will attempt to keep the player at least VIEWPORT_MARGIN
         pixels away from the edge.
-
         if CAMERA_SPEED is 1, the camera will immediately move to the desired position.
         Anything between 0 and 1 will have the camera move to the location with a smoother
         pan.
@@ -351,5 +376,4 @@ class Game(arcade.Window):
         self.camera_gui.resize(int(width), int(height))
 
 window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    # window.setup()
 arcade.run()

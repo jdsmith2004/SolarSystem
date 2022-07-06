@@ -3,7 +3,6 @@ import arcade
 import os
 
 relpath = lambda p: os.path.normpath(os.path.join(os.path.dirname(__file__), p))
-
 # Global constants to use throughout the game
 # Screen parameters
 SCREEN_WIDTH = 1200
@@ -41,7 +40,6 @@ SOLAR_SYSTEM = 178619362920.544
 SCALE_PLANET = 0.003
 SCALE_SYSTEM = 0.00000001
 
-
 #Sun to Mercury size(Sun radius) to distance(kil) ratio
 SUN_MERCURY_RATIO = SUN_RADIUS / 67368000
 
@@ -60,9 +58,6 @@ NEPTUNE_SIZE = 1 / 27.7 * SUN_SIZE
 PLUTO_SIZE = 1 / 585 * SUN_SIZE
 
 MERCURY_D = SUN_SIZE / SUN_MERCURY_RATIO
-
-
-
 
 SCREEN_TITLE = "Solar System 1.2"
 SHIP_TURN_AMOUNT = 3
@@ -214,8 +209,9 @@ class Game(arcade.Window):
         super().__init__(width, height, title)
         # arcade.set_background_color(arcade.color.SMOKY_BLACK)
         
-        #self.background = arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\SimpleSpace.jpg")
-        
+        # self.background = arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\SimpleSpace.jpg")
+        self.background = arcade.load_texture(r"images\\background.png")
+
         self.held_keys = set()
         # Create each object
         self.ship = Ship()
@@ -249,11 +245,12 @@ class Game(arcade.Window):
         Called automatically by the arcade framework.
         Handles the responsibility of drawing all elements.
         """
+        self.clear()
         # Clear the screen to begin drawing
         arcade.start_render()
         
         # self.background = relpath(f"/images/background.png") # -> the path to the image
-        # arcade.draw_lrwh_rectangle_textured(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, self.background)
+        arcade.draw_lrwh_rectangle_textured(0,0,SCREEN_WIDTH,SCREEN_HEIGHT, self.background)
         # arcade.draw_texture_rectangle(590, 350,SCREEN_WIDTH, SCREEN_HEIGHT,self.background)
         # arcade.draw_texture_rectangle(590, 350,
         #                                     SCREEN_WIDTH, SCREEN_HEIGHT,

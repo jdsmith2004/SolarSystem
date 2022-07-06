@@ -211,7 +211,7 @@ class Game(arcade.Window):
         
         # self.background = arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\SimpleSpace.jpg")
         self.background = arcade.load_texture(r"images\\background.png")
-
+        
         self.held_keys = set()
         # Create each object
         self.ship = Ship()

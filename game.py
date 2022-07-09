@@ -334,8 +334,6 @@ class Game(arcade.Window):
                     self.distance_from_earth = PLUTO_DIST
                     self.radius = PLUTO_RADIUS
 
-        pass
-
     def check_keys(self):
         """This function checks for keys that are being held down."""
         if arcade.key.LEFT in self.held_keys:

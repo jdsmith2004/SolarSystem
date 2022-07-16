@@ -12,10 +12,10 @@ We also used the PyGame and PyArcade libraries' built-in functionality to build 
 
 # Collaborators
 The collaborators on this project were:
-Milton Chino
-Anastasia Yazvinskaya
-Joseph Raymant
-Jeff Smith
+Milton Chino, 
+Anastasia Yazvinskaya, 
+Joseph Raymant, 
+Jeff Smith, 
 Gabriele Peck
 
 # Useful Websites

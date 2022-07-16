@@ -305,7 +305,7 @@ class Game(arcade.Window):
                 self.distance_from_earth = planet.p_dist
 
                 with open("travel_log.txt", "a") as travel_log:
-                    travel_log.write(f"User travelled to {planet.name} which is {planet.p_dist} miles away from the earth.\n")
+                    travel_log.write(f"User travelled to {planet.name} which is {planet.p_dist} miles away from the sun.\n")
 
                 if self.place == "Sun":
                     self.distance_from_earth = 0

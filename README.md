@@ -19,7 +19,7 @@ Jeff Smith,
 Gabriele Peck
 
 # Useful Websites
-* [Web Site Name](http://url.link.goes.here)
+* [The Python Arcade Library](https://api.arcade.academy/en/latest/)
 * [Web Site Name](http://url.link.goes.here)
 
 # Future Work

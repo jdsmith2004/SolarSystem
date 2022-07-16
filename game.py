@@ -1,6 +1,7 @@
 import math
 import arcade
 import os
+from datetime import datetime
 
 relpath = lambda p: os.path.normpath(os.path.join(os.path.dirname(__file__), p))
 # Global constants to use throughout the game
@@ -302,6 +303,9 @@ class Game(arcade.Window):
                 self.place = planet.name
                 self.radius = planet.radius
                 self.distance_from_earth = planet.p_dist
+
+                with open("travel_log.txt", "a") as travel_log:
+                    travel_log.write(f"User travelled to {planet.name} which is {planet.p_dist} miles away from the earth.\n")
 
                 if self.place == "Sun":
                     self.distance_from_earth = 0

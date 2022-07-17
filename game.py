@@ -220,6 +220,8 @@ class Game(arcade.Window):
         self.box_center_x = self.box_width//2
         self.box_center_y = screen_height-(self.box_height//2)
 
+        self.no_repeat_planet = '' # variable to check if we already visit a planet to be written to trave_log file
+
     def on_resize(self, width, height):
         """ This method is automatically called when the window is resized. """
 
@@ -290,18 +292,14 @@ class Game(arcade.Window):
     
     def check_collision(self):
         # this would help to check if we get in to a planet
+        
         for planet in self.planets:
         
         # if self.ship.alive and asteroid.alive:
             too_close = planet.radius + Ship().width//2
-
+            
             if (abs(planet.center.x - self.ship.center.x) < too_close and abs(planet.center.y - self.ship.center.y) < too_close):
                 self.place = planet.name
-                self.radius = planet.radius
-                self.distance_from_earth = planet.p_dist
-
-                with open("travel_log.txt", "a") as travel_log:
-                    travel_log.write(f"User travelled to {planet.name} which is {planet.p_dist} miles away from the sun.\n")
 
                 if self.place == "Sun":
                     self.distance_from_earth = 0
@@ -333,6 +331,13 @@ class Game(arcade.Window):
                 if self.place == "Pluto":   
                     self.distance_from_earth = PLUTO_DIST
                     self.radius = PLUTO_RADIUS
+        
+            with open("travel_log.txt", "a") as travel_log:
+                if self.no_repeat_planet == self.place:
+                    continue
+                else:
+                    travel_log.write(f"User travelled to {planet.name} which is {planet.p_dist} miles away from the sun.\n")
+                    self.no_repeat_planet = planet.name
 
     def check_keys(self):
         """This function checks for keys that are being held down."""

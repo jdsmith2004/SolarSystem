@@ -59,7 +59,7 @@ PLUTO_SIZE = (1 / 585) * SUN_SIZE
 
 MERCURY_D = SUN_SIZE / SUN_MERCURY_RATIO
 
-SCREEN_TITLE = "Solar System 1.3"
+SCREEN_TITLE = "Solar System 1.4"
 SHIP_TURN_AMOUNT = 3
 SHIP_SPEED = 3
 
@@ -102,7 +102,7 @@ class Ship:
         self.height = self.texture.height*0.10
         self.ship_dist = EARTH_DIST # -> distance between Sun and ship
         self.center = Point() # -> coordinates of the center
-        self.center.x = 250 # -> x-coordinate changed
+        self.center.x = 350 # -> x-coordinate changed
         self.center.y = 250 # -> y-coordinate changed
         self.velocity = Velocity() # -> values for changing coordinates
         self.angle = 0
@@ -155,7 +155,7 @@ class Planet:
         self.width = self.texture.width*SCALE_PLANET*radius
         self.height = self.texture.height*SCALE_PLANET*radius
         self.center = Point() # -> coordinates of the center
-        self.center.x = distX*SCALE_SYSTEM # -> x-coordinate changed according to the planet distance
+        self.center.x = distX # -> x-coordinate changed according to the planet distance
         self.center.y = SCREEN_HEIGHT//2 # -> y-coordinate changed to the default
         # Planet location need to be fixed
 
@@ -175,33 +175,30 @@ class Game(arcade.Window):
         :param height: Screen height
         """
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, fullscreen=False)
-        # arcade.set_background_color(arcade.color.SMOKY_BLACK)
         
         width, height = self.get_size()
         self.set_viewport(0, width, 0, height)
-        arcade.set_background_color(arcade.color.SMOKY_BLACK)
+        # arcade.set_background_color(arcade.color.SMOKY_BLACK) # a default background
 
-        # self.background = arcade.load_texture(r"C:\Users\Joseph Raymant\Documents\School\2022 Spring\Applied Programming(CSE 310)\Team\SolarSystem\SimpleSpace.jpg")
         self.background = arcade.load_texture(relpath ("images\\background.png"))
         
         self.held_keys = set()
+
         # Create each object
         self.ship = Ship()
         
-        # values have been changed for testing purposes, they need to be fixed yet
         self.planets = [ # -> planets created
-            Planet("Sun", 0, 0, SUN_SIZE),
-            Planet("Mercury", MERCURY_DIST, MERCURY_DIST, MERCURY_SIZE),
-            Planet("Venus", VENUS_DIST, VENUS_DIST, VENUS_SIZE),
-            Planet("Earth", EARTH_DIST, EARTH_DIST, EARTH_SIZE),
-            Planet("Mars", MARS_DIST, MARS_DIST, MARS_SIZE),
-            Planet("Jupiter", JUPITER_DIST, JUPITER_DIST, JUPITER_SIZE),# there is a bug on jupiter radius display on info box.
-            Planet("Saturn", SATURN_DIST, SATURN_DIST, SATURN_SIZE),
-            Planet("Uranus", URANUS_DIST, URANUS_DIST, URANUS_SIZE),
-            Planet("Neptune", NEPTUNE_DIST, NEPTUNE_DIST, NEPTUNE_SIZE),
-            Planet("Pluto", PLUTO_DIST, PLUTO_DIST, PLUTO_SIZE)
+            Planet("Sun", 0,-500, SUN_SIZE),
+            Planet("Mercury", MERCURY_DIST, 150, MERCURY_SIZE),
+            Planet("Venus", VENUS_DIST, 250, VENUS_SIZE),
+            Planet("Earth", EARTH_DIST, 350, EARTH_SIZE),
+            Planet("Mars", MARS_DIST, 450,MARS_SIZE),
+            Planet("Jupiter", JUPITER_DIST, 660, JUPITER_SIZE),
+            Planet("Saturn", SATURN_DIST, 950, SATURN_SIZE),
+            Planet("Uranus", URANUS_DIST, 1100, URANUS_SIZE),
+            Planet("Neptune", NEPTUNE_DIST, 1200, NEPTUNE_SIZE),
+            Planet("Pluto", PLUTO_DIST, 1400, PLUTO_SIZE)
         ]
-
 
         # Used in scrolling
         # Set the viewport boundaries
@@ -219,7 +216,7 @@ class Game(arcade.Window):
         self.radius = ''
         self.distance_from_earth = 0
         self.box_width = (2/6)*screen_width
-        self.box_height = (1/4)*screen_height
+        self.box_height = (0.7/4)*screen_height
         self.box_center_x = self.box_width//2
         self.box_center_y = screen_height-(self.box_height//2)
 
@@ -232,9 +229,9 @@ class Game(arcade.Window):
         self.camera_sprites.resize(int(width), int(height))
         self.camera_gui.resize(int(width), int(height))
         
-        #Set new value to resize info box
+        #Set new values to resize info box
         self.box_width = (2.1/6)*width
-        self.box_height = (1/4)*height
+        self.box_height = (0.7/4)*height
         self.box_center_x = self.box_width//2
         self.box_center_y = height-(self.box_height//2)
 
@@ -268,7 +265,7 @@ class Game(arcade.Window):
         for planet in self.planets:
             planet.draw() # -> each planet is drawn
         
-        # self.player_list.draw() # -> the ship is drawn
+        # the ship is drawn
         self.ship.draw()
 
         # Select the (unscrolled) camera for our GUI
@@ -283,12 +280,12 @@ class Game(arcade.Window):
         arcade.draw_rectangle_filled(self.box_center_x, self.box_center_y, self.box_width, self.box_height, arcade.color.ALMOND)
         
         # Draw text for info box
-        text_1 = f"Current Planet: {self.place}"
-        arcade.draw_text(text_1, self.box_center_x*0.05,screen_height-self.box_height*0.2, arcade.color.BLACK_BEAN, 15)
-        text_2 = f"Distance from center: {self.distance_from_earth}[Km]"
-        arcade.draw_text(text_2, self.box_center_x*0.05,screen_height-self.box_height*0.4, arcade.color.BLACK_BEAN, 15)
-        text_3 = f"Radius: {self.radius}[Km]"
-        arcade.draw_text(text_3, self.box_center_x*0.05,screen_height-self.box_height*0.6, arcade.color.BLACK_BEAN, 15)     
+        text_1 = f"Last Planet: {self.place}"
+        arcade.draw_text(text_1, self.box_center_x*0.05,screen_height-self.box_height*0.25, arcade.color.BLACK_BEAN, 15)
+        text_2 = f"Distance from center: {self.distance_from_earth} [Km]"
+        arcade.draw_text(text_2, self.box_center_x*0.05,screen_height-self.box_height*0.50, arcade.color.BLACK_BEAN, 15)
+        text_3 = f"Radius: {self.radius} [Km]"
+        arcade.draw_text(text_3, self.box_center_x*0.05,screen_height-self.box_height*0.75, arcade.color.BLACK_BEAN, 15)     
 
     
     def check_collision(self):
@@ -302,6 +299,9 @@ class Game(arcade.Window):
                 self.place = planet.name
                 self.radius = planet.radius
                 self.distance_from_earth = planet.p_dist
+
+                with open("travel_log.txt", "a") as travel_log:
+                    travel_log.write(f"User travelled to {planet.name} which is {planet.p_dist} miles away from the sun.\n")
 
                 if self.place == "Sun":
                     self.distance_from_earth = 0
